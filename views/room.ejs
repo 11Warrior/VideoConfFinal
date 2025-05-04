@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <script>
+    const ROOM_ID = "<%= roomId %>";
+  </script>
+  <script defer src="https://unpkg.com/peerjs@1.2.0/dist/peerjs.min.js"></script>
+  <script defer src="/socket.io/socket.io.js"></script>
+  <script defer src="/script.js"></script>
+  <title>Video Chat</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #18181b;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 300px);
+      grid-auto-rows: 300px;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2; /* Set canvas above video grid, below footer */
+      pointer-events: none; /* Disable interaction with canvas */
+    }
+
+    .footer {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: #18181b;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn.red { background-color: #ef4444; }
+    .btn.blue { background-color: #3b82f6; }
+    .btn.purple { background-color: #8b5cf6; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; font-size: 1.5rem; margin: 1rem;">Video Chat</h1>
+
+  <div id="video-grid"></div>
+
+  <div class="footer">
+    <button class="btn red" onclick="window.location.href = '/'">Hang Up</button>
+    <button class="btn blue" onclick="startScreenShare()">Share Screen</button>
+    <button id="draw-toggle-btn" class="btn purple" onclick="toggleDraw()">Enable Draw</button>
+  </div>
+  <canvas id="drawCanvas"></canvas>
+
+  <script>
+    // Screen Share Functionality
+    async function startScreenShare() {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        const screenVideo = document.createElement('video');
+        screenVideo.srcObject = screenStream;
+        screenVideo.autoplay = true;
+        document.getElementById('video-grid').appendChild(screenVideo);
+
+        screenStream.getVideoTracks()[0].addEventListener('ended', () => {
+          screenVideo.remove();
+          alert("Screen sharing stopped.");
+        });
+      } catch (err) {
+        console.error("Screen sharing error:", err);
+        alert("Could not share screen.");
+      }
+    }
+
+    // Drawing Functionality
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawingEnabled = false;
+    let isDrawing = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function toggleDraw() {
+      drawingEnabled = !drawingEnabled;
+
+      const drawBtn = document.getElementById('draw-toggle-btn');
+      drawBtn.textContent = drawingEnabled ? 'Clear' : 'Draw';
+
+      // Enable drawing and interaction with canvas
+      canvas.style.pointerEvents = drawingEnabled ? 'auto' : 'none';
+      // Disable interaction with video grid when drawing
+      document.getElementById('video-grid').style.pointerEvents = drawingEnabled ? 'none' : 'auto'; 
+
+      // Clear the canvas when drawing is disabled
+      if (!drawingEnabled) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (!drawingEnabled) return;
+      isDrawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!drawingEnabled || !isDrawing) return;
+      ctx.lineTo(e.clientX, e.clientY);
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
+  </script>
+</body>
+</html>
