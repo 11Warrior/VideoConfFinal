@@ -1,6 +1,3 @@
-Here’s an improved version of your **README.md** that organizes the information more effectively and adds a bit more detail to make it clearer for other developers or contributors:
-
----
 
 # Video Chat App with Drawing and Screen Sharing
 
