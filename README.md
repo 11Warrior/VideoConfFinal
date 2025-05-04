@@ -20,6 +20,14 @@ This project is a **real-time video chat application** with additional features 
 * **HTML5 Canvas**: Provides the drawing surface over the video chat.
 * **CSS**: Custom styles for a responsive and user-friendly interface.
 
+  
+## Screenshots
+
+
+![1](https://github.com/user-attachments/assets/91be81da-baef-4a3a-9683-33a20b08b89a)
+![3](https://github.com/user-attachments/assets/6a8af051-de31-44a8-bd86-9059587266bd)
+![2](https://github.com/user-attachments/assets/3bdbd068-b594-4484-a4a2-4b58d0d11456)
+
 ## Prerequisites
 
 To run this application locally, you will need the following:
